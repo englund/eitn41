@@ -26,24 +26,11 @@ def gcd(a, b):
         a, b = b, a % b
     return a
 
-def euler_phi(n):
-    tot, pos = 0, n - 1
-    while pos > 0:
-        if gcd(pos, n) == 1: tot += 1
-        pos -= 1
-    return tot
-
 def gen_unique_random_primes():
     p = gen_random_prime()
     q = gen_random_prime()
     while q == p:
         q = gen_random_prime()
-#    n = p * q
-#    phi_n = n - (p + q - 1)
-#    e = random.randint(2, phi_n - 1)
-#    while gcd(e, phi_n) != 1:
-#        e = random.randint(2, phi_n - 1)
-
     return p, q
 
 def h(a, b = ''):
@@ -64,7 +51,7 @@ def egcd(a, b):
 def modinv(a, m):
     gcd, x, y = egcd(a, m)
     if gcd != 1:
-        return None  # modular inverse does not exist
+        return None
     else:
         return x % m
 
@@ -76,10 +63,10 @@ class Client:
         self.quadruples = []
         for i in xrange(0, 2 * k):
             # a, c, d, r
-            s = set(random.randint(1, 1000) for _ in xrange(0, 3))
-            r = random.randint(1, 1000)
+            s = set(random.randint(1, n) for _ in xrange(0, 3))
+            r = random.randint(1, n)
             while gcd(r, n) != 1:
-                 r = random.randint(1, 1000)
+                 r = random.randint(1, n)
             s.add(r)
             self.quadruples.append(s)
         self.x = []
@@ -100,8 +87,6 @@ class Client:
         for i in b_indexes:
             s *= h(self.x[i], self.y[i]) ^ modinv(3, n)
         return s
-            
-
 
 class Bank:
     def gen_r(self, b):
@@ -129,8 +114,6 @@ class Bank:
             sig *= x^d
         return sig % n
 
-
-
 if __name__ == '__main__':
     p, q = gen_unique_random_primes()
     n = p * q
@@ -139,10 +122,10 @@ if __name__ == '__main__':
     r = bank.gen_r(alice.b)
     cv = alice.creationvalues(r)
     
-    # check that it is ok
-    bank.controlb(alice.identity, cv, r, alice.b, n)
-
-    b_remaining_indexes = set(i for i in xrange(0, len(r) * 2)) - r
-    b_remaining = [alice.b[i] for i in b_remaining_indexes]
-    sig = bank.blind_sig(b_remaining, n)
-    print alice.withdraw(sig, b_remaining_indexes)
+    if bank.controlb(alice.identity, cv, r, alice.b, n):
+        b_remaining_indexes = set(i for i in xrange(0, len(r) * 2)) - r
+        b_remaining = [alice.b[i] for i in b_remaining_indexes]
+        sig = bank.blind_sig(b_remaining, n)
+        print alice.withdraw(sig, b_remaining_indexes)
+    else:
+        print 'the B array is not OK!'
