@@ -82,7 +82,7 @@ class Client:
     def creationvalues(self, r):
         return [self.quadruples[i] for i in r]
 
-    def withdraw(self, sig, b_indexes):
+    def calculate_sig(self, sig, b_indexes):
         s = 1
         for i in b_indexes:
             s *= h(self.x[i], self.y[i]) ^ modinv(3, n)
@@ -126,6 +126,6 @@ if __name__ == '__main__':
         b_remaining_indexes = set(i for i in xrange(0, len(r) * 2)) - r
         b_remaining = [alice.b[i] for i in b_remaining_indexes]
         sig = bank.blind_sig(b_remaining, n)
-        print alice.withdraw(sig, b_remaining_indexes)
+        print alice.calculate_sig(sig, b_remaining_indexes)
     else:
         print 'the B array is not OK!'
