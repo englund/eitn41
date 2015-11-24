@@ -1,5 +1,6 @@
 import random
 import rsa
+import math
 
 class client:
     def __init__(self,id):
@@ -18,7 +19,8 @@ class message:
         self.receiver = receiver
 
     def prepare(self, mix):
-        em = rsa.encrypt(self.message.encode('utf8'), self.receiver.get_pub()) + "||" + str(self.receiver.id)
+        em = rsa.encrypt(self.message.encode('utf8'),
+                self.receiver.get_pub()) + "||" + str(self.receiver.id)
         return rsa.encrypt(em, mix.get_pub())
 
 class mix:
@@ -54,7 +56,7 @@ class mix:
         self.messages.reverse()
 
 if __name__ == "__main__":
-    N = 6
+    N = 9
     n = 3
     mix = mix(1)
 
@@ -72,6 +74,10 @@ if __name__ == "__main__":
     mix.insert_client(frutti)
     george = client(6)
     mix.insert_client(george)
+    hedda = client(7)
+    mix.insert_client(hedda)
+    ida = client(8)
+    mix.insert_client(ida)
 
     R = []
     mix.insert_message(message('hej', alice, bob).prepare(mix))
@@ -92,33 +98,51 @@ if __name__ == "__main__":
     R3 = mix.get_messages()
     R.append(set(k for k, v in R3.iteritems()))
 
+    # learning phase
     base = set()
     Rn = R
     for _ in Rn:
         Ri = Rn.pop()
         for j, r in enumerate(Rn):
             if Ri.isdisjoint(Rn[j]):
-                base.add(frozenset(i) for i in Ri)
-                base.add(frozenset(i) for i in R[j])
-    for s in base:
-#    clients = []
-#    for i in xrange(0, N - 2):
-#        c = client(i)
-#        clients.append(c)
-#        mix.insert_client(c)
-#
-#    R = []
-#    for i in xrange(0, 20):
-#        for i in xrange(0, n):
-#            m = message('hej' + str(i), clients[i % (N - 2)], clients[(i + 1) % (N - 2)])
-#            mix.insert_message(m.prepare(mix))
-#
-#        m = message('t', alice, bob)
-#        mix.insert_message(m.prepare(mix))
-#
-#        messages = mix.get_messages()
-#
-#        Ri = set(k for k, m in messages.iteritems())
-#        for Rj in R:
-#            if len(Ri - Rj) == 0:
-#                print 
+                base.add(frozenset(Ri))
+                base.add(frozenset(Rn[j]))
+
+    # excluding phase
+    m = len(base)
+
+    attackable = math.floor(n/N) <= m
+    print 'attackable:', attackable
+
+    messages = [
+        message('hej', alice, bob).prepare(mix),
+        message('hej', bob, hedda).prepare(mix),
+        message('hej', frutti, ida).prepare(mix),
+
+        message('hej', alice, clark).prepare(mix),
+        message('hej', bob, hedda).prepare(mix),
+        message('hej', frutti, ida).prepare(mix)
+    ]
+
+    Rj_prim = [set(s) for s in base]
+    partners = set()
+    k = len(messages) / 3
+    for _ in xrange(0, k):
+        mix.insert_message(messages.pop())
+        mix.insert_message(messages.pop())
+        mix.insert_message(messages.pop())
+        R4 = mix.get_messages()
+        R_prim = set(k for k, v in R4.iteritems())
+
+        counter = 0
+        match_Rj_prim = set()
+        for i, s in enumerate(Rj_prim):
+            if len(R_prim & s) != 0:
+                counter += 1
+                match_Rj_prim_index = i
+
+        if counter == 1:
+            Rj_prim[match_Rj_prim_index] = Rj_prim[match_Rj_prim_index] & R_prim
+
+    partners = [q.pop() for q in Rj_prim]
+    print 'alice\'s partners:', partners
