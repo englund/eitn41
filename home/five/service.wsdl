@@ -9,7 +9,7 @@
       <part name="a" type="xsd:integer"/>
       <part name="b" type="xsd:integer"/>
    </message>
-    
+
    <message name="ResultResponse">
       <part name="result" type="xsd:integer"/>
    </message>
