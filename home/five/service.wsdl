@@ -1,0 +1,43 @@
+<definitions name="MathOperationService"
+        targetNamespace="service.wsdl"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:tns="service.wsdl"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+   <message name="OperationRequest">
+      <part name="a" type="xsd:integer"/>
+      <part name="b" type="xsd:integer"/>
+   </message>
+    
+   <message name="ResultResponse">
+      <part name="result" type="xsd:integer"/>
+   </message>
+
+   <portType name="MathOperationPortType">
+      <operation name="multiply">
+         <input message="tns:OperationRequest"/>
+         <output message="tns:OperationResponse"/>
+      </operation>
+   </portType>
+
+   <binding name="MathOperationBinding" type="tns:MathOperationPortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="multiply">
+         <soap:operation soapAction="urn:operation#multiply"/>
+         <input>
+            <soap:body use="literal" />
+         </input>
+         <output>
+            <soap:body use="literal" />
+         </output>
+      </operation>
+   </binding>
+
+   <service name="MathOperationService">
+      <port binding="MathOperationBinding" name="MathOperationPort">
+         <soap:address location="http://localhost/server.php" />
+      </port>
+   </service>
+</definitions>
