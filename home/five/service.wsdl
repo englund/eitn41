@@ -2,7 +2,7 @@
         targetNamespace="service.wsdl"
         xmlns="http://schemas.xmlsoap.org/wsdl/"
         xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-        xmlns:tns="service.wsdl"
+        xmlns:tns="http://81.228.201.233/service.wsdl"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
    <message name="OperationRequest">
@@ -10,7 +10,7 @@
       <part name="b" type="xsd:integer"/>
    </message>
 
-   <message name="ResultResponse">
+   <message name="OperationResponse">
       <part name="result" type="xsd:integer"/>
    </message>
 
@@ -37,7 +37,7 @@
 
    <service name="MathOperationService">
       <port binding="MathOperationBinding" name="MathOperationPort">
-         <soap:address location="http://localhost/server.php" />
+         <soap:address location="http://81.228.201.233/server.php" />
       </port>
    </service>
 </definitions>
